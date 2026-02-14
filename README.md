@@ -25,3 +25,16 @@ Focus Score =
 (Accuracy × 0.5) +
 (1 / Average Response Time × 0.3) +
 (Consistency × 0.2)
+
+
+Frontend Interface
+
+The project includes a simple HTML/CSS-based user interface.
+
+Features:
+- Start Assessment button
+- Question display area
+- User input field
+- Focus score result display
+
+This modular structure allows future integration with the Python backend.
