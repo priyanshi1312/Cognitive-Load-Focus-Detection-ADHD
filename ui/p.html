@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Load & Focus Detection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <h1>Cognitive Load & Focus Tracker</h1>
+            <p class="subtitle">Task-Based Attention Monitoring System</p>
+        </header>
+
+        <div class="card">
+
+            <section class="controls">
+                <button id="startBtn" class="primary-btn">Start Session</button>
+                <button id="stopBtn" class="secondary-btn">Stop Session</button>
+            </section>
+
+            <section class="metrics">
+                <h2>Real-Time Metrics</h2>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="focusProgress"></div>
+                    </div>
+                    <p class="progress-label">Focus Level Indicator</p>
+                </div>
+
+                <div class="timer">
+                    Session Timer: <span id="timer">00:00</span>
+                </div>
+            </section>
+
+            <section class="report">
+                <h2>Session Report</h2>
+                <div class="report-box">
+                    <p><strong>Focus %:</strong> 0%</p>
+                    <p><strong>Cognitive Load:</strong> N/A</p>
+                </div>
+                <button class="download-btn">Download Report</button>
+            </section>
+
+        </div>
+
+        <footer class="footer">
+            <p>© 2026 ADHD Focus Detection Project</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
