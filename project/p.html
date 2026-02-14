@@ -1,0 +1,44 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Cognitive Load / Focus Tracker</h1>
+    </header>
+
+    <main>
+        <section class="controls">
+            <button id="startBtn">Start Session</button>
+            <button id="stopBtn">Stop Session</button>
+        </section>
+
+        <section class="metrics">
+            <h2>Real-Time Metrics</h2>
+            <div class="graph-placeholder">
+                <!-- Here a graph or progress bar can go -->
+                <p>Graph / Focus Metrics will appear here</p>
+            </div>
+            <div class="timer">
+                Session Timer: <span id="timer">00:00</span>
+            </div>
+        </section>
+
+        <section class="report">
+            <h2>Session Report</h2>
+            <p>Focus %: 0%</p>
+            <p>Cognitive Load: N/A</p>
+            <button>Download Report</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>©️ 2026 ADHD Focus Project</p>
+    </footer>
+</body>
+</html>
