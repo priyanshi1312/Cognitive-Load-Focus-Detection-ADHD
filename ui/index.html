@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Load Assessment - ADHD Students</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .game-button {
+            transition: all 0.2s ease;
+        }
+        
+        .game-button:active {
+            transform: scale(0.95);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Main App Component
+        function App() {
+            const [currentView, setCurrentView] = useState('home');
+            const [selectedAssessment, setSelectedAssessment] = useState(null);
+            const [userData, setUserData] = useState({ name: '', age: '', grade: '' });
+
+            return (
+                <div className="min-h-screen">
+                    {currentView === 'home' && (
+                        <HomePage 
+                            onStart={() => setCurrentView('userInfo')} 
+                        />
+                    )}
+                    {currentView === 'userInfo' && (
+                        <UserInfoForm 
+                            userData={userData}
+                            setUserData={setUserData}
+                            onNext={() => setCurrentView('selection')} 
+                            onBack={() => setCurrentView('home')}
+                        />
+                    )}
+                    {currentView === 'selection' && (
+                        <AssessmentSelection 
+                            onSelect={(type) => {
+                                setSelectedAssessment(type);
+                                setCurrentView('assessment');
+                            }}
+                            onBack={() => setCurrentView('userInfo')}
+                        />
+                    )}
+                    {currentView === 'assessment' && (
+                        <AssessmentInterface 
+                            type={selectedAssessment}
+                            userData={userData}
+                            onComplete={(results) => {
+                                setCurrentView('results');
+                            }}
+                            onBack={() => setCurrentView('selection')}
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        // Home Page Component
+        function HomePage({ onStart }) {
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 fade-in">
+                    <div className="max-w-4xl w-full">
+                        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-12 text-white text-center">
+                                <div className="mb-6">
+                                    <i className="fas fa-brain text-6xl pulse-slow"></i>
+                                </div>
+                                <h1 className="text-5xl font-bold mb-4">Cognitive Load Assessment</h1>
+                                <p className="text-xl opacity-90">for ADHD Students</p>
+                            </div>
+                            
+                            <div className="p-12">
+                                <div className="mb-8">
+                                    <h2 className="text-3xl font-semibold text-gray-800 mb-4">Welcome!</h2>
+                                    <p className="text-lg text-gray-600 leading-relaxed mb-4">
+                                        This tool helps assess cognitive load through engaging activities designed specifically 
+                                        for students with ADHD. We use science-backed methods to understand how your brain processes information.
+                                    </p>
+                                </div>
+
+                                <div className="grid md:grid-cols-3 gap-6 mb-10">
+                                    <div className="text-center p-6 bg-indigo-50 rounded-xl">
+                                        <i className="fas fa-gamepad text-4xl text-indigo-600 mb-3"></i>
+                                        <h3 className="font-semibold text-gray-800 mb-2">Fun Mind Games</h3>
+                                        <p className="text-sm text-gray-600">Engaging activities that feel like play</p>
+                                    </div>
+                                    <div className="text-center p-6 bg-purple-50 rounded-xl">
+                                        <i className="fas fa-eye text-4xl text-purple-600 mb-3"></i>
+                                        <h3 className="font-semibold text-gray-800 mb-2">Eye Tracking</h3>
+                                        <p className="text-sm text-gray-600">Advanced technology for precise measurement</p>
+                                    </div>
+                                    <div className="text-center p-6 bg-pink-50 rounded-xl">
+                                        <i className="fas fa-chart-line text-4xl text-pink-600 mb-3"></i>
+                                        <h3 className="font-semibold text-gray-800 mb-2">Clear Results</h3>
+                                        <p className="text-sm text-gray-600">Easy-to-understand insights</p>
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <button 
+                                        onClick={onStart}
+                                        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-12 py-4 rounded-full text-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                    >
+                                        Start Assessment <i className="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // User Info Form Component
+        function UserInfoForm({ userData, setUserData, onNext, onBack }) {
+            const [formData, setFormData] = useState(userData);
+            
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setUserData(formData);
+                onNext();
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 fade-in">
+                    <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-10">
+                        <button 
+                            onClick={onBack}
+                            className="text-gray-600 hover:text-gray-800 mb-6 flex items-center"
+                        >
+                            <i className="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        
+                        <h2 className="text-3xl font-bold text-gray-800 mb-2">Let's Get Started!</h2>
+                        <p className="text-gray-600 mb-8">Tell us a bit about yourself</p>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div>
+                                <label className="block text-gray-700 font-semibold mb-2">
+                                    <i className="fas fa-user mr-2 text-indigo-600"></i>Name
+                                </label>
+                                <input 
+                                    type="text"
+                                    required
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:outline-none text-lg"
+                                    placeholder="Enter your name"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-gray-700 font-semibold mb-2">
+                                    <i className="fas fa-calendar mr-2 text-indigo-600"></i>Age
+                                </label>
+                                <input 
+                                    type="number"
+                                    required
+                                    min="5"
+                                    max="100"
+                                    value={formData.age}
+                                    onChange={(e) => setFormData({...formData, age: e.target.value})}
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:outline-none text-lg"
+                                    placeholder="Enter your age"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-gray-700 font-semibold mb-2">
+                                    <i className="fas fa-graduation-cap mr-2 text-indigo-600"></i>Grade/Year
+                                </label>
+                                <input 
+                                    type="text"
+                                    required
+                                    value={formData.grade}
+                                    onChange={(e) => setFormData({...formData, grade: e.target.value})}
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:outline-none text-lg"
+                                    placeholder="e.g., 5th grade, Year 7"
+                                />
+                            </div>
+                            
+                            <button 
+                                type="submit"
+                                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                            >
+                                Continue <i className="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        // Assessment Selection Component
+        function AssessmentSelection({ onSelect, onBack }) {
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 fade-in">
+                    <div className="max-w-5xl w-full">
+                        <button 
+                            onClick={onBack}
+                            className="text-white hover:text-gray-200 mb-6 flex items-center text-lg"
+                        >
+                            <i className="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        
+                        <h2 className="text-4xl font-bold text-white text-center mb-4">Choose Your Assessment Type</h2>
+                        <p className="text-white text-center mb-12 text-lg opacity-90">Select the method you'd like to use</p>
+                        
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div 
+                                onClick={() => onSelect('mindGames')}
+                                className="bg-white rounded-3xl p-10 cursor-pointer card-hover"
+                            >
+                                <div className="text-center">
+                                    <div className="mb-6">
+                                        <i className="fas fa-gamepad text-6xl text-indigo-600"></i>
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-gray-800 mb-4">Mind Games</h3>
+                                    <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+                                        Play interactive games that test your memory, attention, and processing speed. 
+                                        Fun activities that help us understand your cognitive load.
+                                    </p>
+                                    
+                                    <div className="space-y-3 mb-8">
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Memory matching games</span>
+                                        </div>
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Visual attention tasks</span>
+                                        </div>
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Reaction time tests</span>
+                                        </div>
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Pattern recognition</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button className="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
+                                        Start Games
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div 
+                                onClick={() => onSelect('eyeTracking')}
+                                className="bg-white rounded-3xl p-10 cursor-pointer card-hover"
+                            >
+                                <div className="text-center">
+                                    <div className="mb-6">
+                                        <i className="fas fa-eye text-6xl text-purple-600"></i>
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-gray-800 mb-4">Eye Tracking</h3>
+                                    <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+                                        Use advanced eye tracking technology to measure cognitive load through 
+                                        natural eye movements and focus patterns.
+                                    </p>
+                                    
+                                    <div className="space-y-3 mb-8">
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Gaze pattern analysis</span>
+                                        </div>
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Pupil dilation tracking</span>
+                                        </div>
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Focus duration metrics</span>
+                                        </div>
+                                        <div className="flex items-center text-left">
+                                            <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                                            <span className="text-gray-700">Attention mapping</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button className="w-full bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-colors">
+                                        Start Eye Tracking
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Assessment Interface Component
+        function AssessmentInterface({ type, userData, onComplete, onBack }) {
+            if (type === 'mindGames') {
+                return <MindGamesAssessment userData={userData} onComplete={onComplete} onBack={onBack} />;
+            } else {
+                return <EyeTrackingAssessment userData={userData} onComplete={onComplete} onBack={onBack} />;
+            }
+        }
+
+        // Mind Games Assessment Component
+        function MindGamesAssessment({ userData, onComplete, onBack }) {
+            const [currentGame, setCurrentGame] = useState(null);
+            const [gameResults, setGameResults] = useState([]);
+            const [completedGames, setCompletedGames] = useState([]);
+
+            const games = [
+                { id: 'memory', name: 'Memory Match', icon: 'fa-brain', color: 'indigo' },
+                { id: 'reaction', name: 'Reaction Time', icon: 'fa-bolt', color: 'yellow' },
+                { id: 'attention', name: 'Visual Attention', icon: 'fa-eye', color: 'blue' },
+                { id: 'sequence', name: 'Sequence Memory', icon: 'fa-list-ol', color: 'green' }
+            ];
+
+            const handleGameComplete = (gameId, result) => {
+                setGameResults([...gameResults, { gameId, result }]);
+                setCompletedGames([...completedGames, gameId]);
+                setCurrentGame(null);
+            };
+
+            if (currentGame) {
+                return (
+                    <GameInterface 
+                        game={games.find(g => g.id === currentGame)}
+                        onComplete={handleGameComplete}
+                        onBack={() => setCurrentGame(null)}
+                    />
+                );
+            }
+
+            return (
+                <div className="min-h-screen p-4 fade-in">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+                            <button 
+                                onClick={onBack}
+                                className="text-gray-600 hover:text-gray-800 mb-4 flex items-center"
+                            >
+                                <i className="fas fa-arrow-left mr-2"></i> Back
+                            </button>
+                            
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h2 className="text-3xl font-bold text-gray-800">Mind Games Assessment</h2>
+                                    <p className="text-gray-600">Complete all games to get your results</p>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-3xl font-bold text-indigo-600">{completedGames.length}/{games.length}</div>
+                                    <div className="text-sm text-gray-600">Games Completed</div>
+                                </div>
+                            </div>
+
+                            <div className="w-full bg-gray-200 rounded-full h-3 mb-8">
+                                <div 
+                                    className="bg-gradient-to-r from-indigo-600 to-purple-600 h-3 rounded-full transition-all duration-500"
+                                    style={{ width: `${(completedGames.length / games.length) * 100}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {games.map(game => (
+                                <div 
+                                    key={game.id}
+                                    className={`bg-white rounded-2xl p-8 card-hover ${completedGames.includes(game.id) ? 'border-4 border-green-500' : ''}`}
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className={`w-16 h-16 bg-${game.color}-100 rounded-2xl flex items-center justify-center`}>
+                                            <i className={`fas ${game.icon} text-3xl text-${game.color}-600`}></i>
+                                        </div>
+                                        {completedGames.includes(game.id) && (
+                                            <i className="fas fa-check-circle text-3xl text-green-500"></i>
+                                        )}
+                                    </div>
+                                    
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-2">{game.name}</h3>
+                                    <p className="text-gray-600 mb-6">
+                                        {game.id === 'memory' && 'Test your working memory with card matching'}
+                                        {game.id === 'reaction' && 'Measure your reaction time and processing speed'}
+                                        {game.id === 'attention' && 'Assess your visual attention and focus'}
+                                        {game.id === 'sequence' && 'Challenge your sequential memory skills'}
+                                    </p>
+                                    
+                                    <button 
+                                        onClick={() => setCurrentGame(game.id)}
+                                        className={`w-full bg-gradient-to-r from-${game.color}-600 to-${game.color}-700 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all game-button`}
+                                    >
+                                        {completedGames.includes(game.id) ? 'Play Again' : 'Start Game'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {completedGames.length === games.length && (
+                            <div className="mt-8 text-center">
+                                <button 
+                                    onClick={() => onComplete(gameResults)}
+                                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-12 py-4 rounded-full text-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                >
+                                    View Results <i className="fas fa-chart-bar ml-2"></i>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Game Interface Component
+        function GameInterface({ game, onComplete, onBack }) {
+            const [gameState, setGameState] = useState('instructions');
+            const [score, setScore] = useState(0);
+            const [timeElapsed, setTimeElapsed] = useState(0);
+
+            return (
+                <div className="min-h-screen p-4 fade-in">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="bg-white rounded-3xl shadow-2xl p-8">
+                            <button 
+                                onClick={onBack}
+                                className="text-gray-600 hover:text-gray-800 mb-6 flex items-center"
+                            >
+                                <i className="fas fa-arrow-left mr-2"></i> Back to Games
+                            </button>
+
+                            {gameState === 'instructions' && (
+                                <div className="text-center">
+                                    <div className="mb-6">
+                                        <i className={`fas ${game.icon} text-6xl text-${game.color}-600`}></i>
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-4">{game.name}</h2>
+                                    
+                                    <div className="bg-gray-50 rounded-2xl p-8 mb-8 text-left max-w-2xl mx-auto">
+                                        <h3 className="font-semibold text-xl mb-4 text-gray-800">How to Play:</h3>
+                                        {game.id === 'memory' && (
+                                            <ul className="space-y-2 text-gray-700">
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-indigo-600"></i>
+                                                    <span>Cards will be shown face down on the screen</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-indigo-600"></i>
+                                                    <span>Click two cards to flip them and find matching pairs</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-indigo-600"></i>
+                                                    <span>Match all pairs as quickly as you can</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-indigo-600"></i>
+                                                    <span>Your time and number of attempts will be recorded</span>
+                                                </li>
+                                            </ul>
+                                        )}
+                                        {game.id === 'reaction' && (
+                                            <ul className="space-y-2 text-gray-700">
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-yellow-600"></i>
+                                                    <span>Wait for a colored target to appear</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-yellow-600"></i>
+                                                    <span>Click or tap as fast as you can when you see it</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-yellow-600"></i>
+                                                    <span>Complete 10 rounds</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-yellow-600"></i>
+                                                    <span>Your average reaction time will be calculated</span>
+                                                </li>
+                                            </ul>
+                                        )}
+                                        {game.id === 'attention' && (
+                                            <ul className="space-y-2 text-gray-700">
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-blue-600"></i>
+                                                    <span>Watch for specific shapes or colors</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-blue-600"></i>
+                                                    <span>Click only on the target items</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-blue-600"></i>
+                                                    <span>Ignore distractors</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-blue-600"></i>
+                                                    <span>Accuracy and speed both matter</span>
+                                                </li>
+                                            </ul>
+                                        )}
+                                        {game.id === 'sequence' && (
+                                            <ul className="space-y-2 text-gray-700">
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-green-600"></i>
+                                                    <span>Watch the sequence of highlighted items</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-green-600"></i>
+                                                    <span>Repeat the sequence in the correct order</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-green-600"></i>
+                                                    <span>Sequences get longer as you progress</span>
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <i className="fas fa-circle text-xs mt-2 mr-3 text-green-600"></i>
+                                                    <span>Test your sequential memory capacity</span>
+                                                </li>
+                                            </ul>
+                                        )}
+                                    </div>
+
+                                    <button 
+                                        onClick={() => setGameState('playing')}
+                                        className={`bg-gradient-to-r from-${game.color}-600 to-${game.color}-700 text-white px-12 py-4 rounded-full text-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200`}
+                                    >
+                                        Start Game <i className="fas fa-play ml-2"></i>
+                                    </button>
+                                </div>
+                            )}
+
+                            {gameState === 'playing' && (
+                                <div className="text-center py-12">
+                                    <div className="mb-8">
+                                        <i className={`fas ${game.icon} text-6xl text-${game.color}-600 pulse-slow`}></i>
+                                    </div>
+                                    <h3 className="text-2xl font-semibold text-gray-700 mb-8">Game in Progress...</h3>
+                                    <p className="text-gray-600 mb-8">This is a simulation. In production, the actual game would run here.</p>
+                                    <button 
+                                        onClick={() => {
+                                            onComplete(game.id, {
+                                                score: Math.floor(Math.random() * 100),
+                                                time: Math.floor(Math.random() * 60),
+                                                accuracy: Math.floor(Math.random() * 30) + 70
+                                            });
+                                        }}
+                                        className="bg-gray-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-gray-700 transition-colors"
+                                    >
+                                        Complete Game (Demo)
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Eye Tracking Assessment Component
+        function EyeTrackingAssessment({ userData, onComplete, onBack }) {
+            const [calibrationComplete, setCalibrationComplete] = useState(false);
+            const [trackingActive, setTrackingActive] = useState(false);
+            const [progress, setProgress] = useState(0);
+
+            useEffect(() => {
+                if (trackingActive) {
+                    const interval = setInterval(() => {
+                        setProgress(prev => {
+                            if (prev >= 100) {
+                                clearInterval(interval);
+                                return 100;
+                            }
+                            return prev + 1;
+                        });
+                    }, 100);
+                    return () => clearInterval(interval);
+                }
+            }, [trackingActive]);
+
+            return (
+                <div className="min-h-screen p-4 fade-in">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="bg-white rounded-3xl shadow-2xl p-10">
+                            <button 
+                                onClick={onBack}
+                                className="text-gray-600 hover:text-gray-800 mb-6 flex items-center"
+                            >
+                                <i className="fas fa-arrow-left mr-2"></i> Back
+                            </button>
+
+                            {!calibrationComplete && (
+                                <div className="text-center">
+                                    <div className="mb-6">
+                                        <i className="fas fa-eye text-6xl text-purple-600"></i>
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-4">Eye Tracking Calibration</h2>
+                                    <p className="text-gray-600 mb-8 text-lg">
+                                        We need to calibrate the eye tracker before starting. This ensures accurate measurements.
+                                    </p>
+
+                                    <div className="bg-purple-50 rounded-2xl p-8 mb-8 text-left max-w-2xl mx-auto">
+                                        <h3 className="font-semibold text-xl mb-4 text-gray-800">Calibration Steps:</h3>
+                                        <ul className="space-y-3 text-gray-700">
+                                            <li className="flex items-start">
+                                                <i className="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                                <span>Position yourself comfortably in front of the screen</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <i className="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                                <span>Keep your head still during calibration</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <i className="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                                <span>Follow the dots with your eyes as they appear</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <i className="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                                <span>Ensure good lighting (not too bright or dark)</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => setCalibrationComplete(true)}
+                                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-12 py-4 rounded-full text-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                    >
+                                        Start Calibration <i className="fas fa-crosshairs ml-2"></i>
+                                    </button>
+                                </div>
+                            )}
+
+                            {calibrationComplete && !trackingActive && (
+                                <div className="text-center">
+                                    <div className="mb-6">
+                                        <i className="fas fa-check-circle text-6xl text-green-500"></i>
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-4">Calibration Complete!</h2>
+                                    <p className="text-gray-600 mb-8 text-lg">
+                                        Eye tracking is ready. You'll now view a series of tasks while we measure your eye movements.
+                                    </p>
+
+                                    <div className="bg-blue-50 rounded-2xl p-8 mb-8 max-w-2xl mx-auto">
+                                        <h3 className="font-semibold text-xl mb-4 text-gray-800">During the Assessment:</h3>
+                                        <ul className="space-y-3 text-gray-700 text-left">
+                                            <li className="flex items-start">
+                                                <i className="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                                                <span>Simply look at the content naturally</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <i className="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                                                <span>No need to do anything special</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <i className="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                                                <span>The assessment takes about 5 minutes</span>
+                                            </li>
+                                            <li className="flex items-start">
+                                                <i className="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                                                <span>Try to stay focused on the screen</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => setTrackingActive(true)}
+                                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-12 py-4 rounded-full text-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                    >
+                                        Begin Assessment <i className="fas fa-play ml-2"></i>
+                                    </button>
+                                </div>
+                            )}
+
+                            {trackingActive && (
+                                <div className="text-center">
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-8">Eye Tracking in Progress</h2>
+                                    
+                                    <div className="mb-8">
+                                        <div className="relative w-48 h-48 mx-auto">
+                                            <svg className="transform -rotate-90 w-48 h-48">
+                                                <circle
+                                                    cx="96"
+                                                    cy="96"
+                                                    r="88"
+                                                    stroke="#e5e7eb"
+                                                    strokeWidth="12"
+                                                    fill="transparent"
+                                                />
+                                                <circle
+                                                    cx="96"
+                                                    cy="96"
+                                                    r="88"
+                                                    stroke="url(#gradient)"
+                                                    strokeWidth="12"
+                                                    fill="transparent"
+                                                    strokeDasharray="552.92"
+                                                    strokeDashoffset={552.92 - (552.92 * progress) / 100}
+                                                    className="progress-ring-circle"
+                                                />
+                                                <defs>
+                                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop offset="0%" stopColor="#9333ea" />
+                                                        <stop offset="100%" stopColor="#ec4899" />
+                                                    </linearGradient>
+                                                </defs>
+                                            </svg>
+                                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                                <div className="text-4xl font-bold text-purple-600">{progress}%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 mb-8">
+                                        <p className="text-gray-700 text-lg mb-4">
+                                            <i className="fas fa-eye text-purple-600 mr-2"></i>
+                                            Tracking your eye movements...
+                                        </p>
+                                        <p className="text-gray-600">Please keep looking at the screen naturally</p>
+                                    </div>
+
+                                    {progress === 100 && (
+                                        <button 
+                                            onClick={() => onComplete({
+                                                gazeDuration: 4.2,
+                                                pupilDilation: 0.65,
+                                                focusScore: 78,
+                                                cognitiveLoad: 'moderate'
+                                            })}
+                                            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-12 py-4 rounded-full text-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 fade-in"
+                                        >
+                                            View Results <i className="fas fa-chart-bar ml-2"></i>
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render App
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
